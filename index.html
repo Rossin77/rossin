@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>ROSSIN | Официальный сайт</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="animated-bg"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="nav-dots">
+    <div class="nav-dot active" data-target="hero" title="Главная"></div>
+    <div class="nav-dot" data-target="discography-main" title="Дискография"></div>
+  </div>
+
+  <div class="modal" id="userModal">
+    <div class="modal-content">
+      <h3 data-ru="Вход / Регистрация" data-en="Login / Register">Вход / Регистрация</h3>
+      <input type="text" data-ru-placeholder="Логин или email" data-en-placeholder="Login or email" placeholder="Логин или email" id="usernameInput">
+      <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="passwordInput">
+      <div class="modal-buttons">
+        <button class="btn btn-accent" id="loginAction" data-ru="Войти" data-en="Login">Войти</button>
+        <button class="btn" id="registerAction" data-ru="Регистрация" data-en="Register">Регистрация</button>
+        <button class="btn" id="closeModal" data-ru="Закрыть" data-en="Close">Закрыть</button>
+      </div>
+      <p id="userMessage" style="margin-top:18px;font-weight:600;"></p>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="logo" id="logoBtn">ROSSIN</div>
+        <div class="social-btns">
+          <a href="https://vk.com/flexinforces" target="_blank" class="social-btn vk" title="VK">
+            <span class="social-icon">📘</span><span class="social-label">VK</span>
+          </a>
+          <a href="https://www.instagram.com/rossinsinss?igsh=cjJwMWJlZWRwc3ht" target="_blank" class="social-btn instagram" title="Instagram">
+            <span class="social-icon">📷</span><span class="social-label">Instagram</span>
+          </a>
+          <a href="https://soundcloud.com/rossin-824192136" target="_blank" class="social-btn soundcloud" title="SoundCloud">
+            <span class="social-icon">☁️</span><span class="social-label">SoundCloud</span>
+          </a>
+        </div>
+      </div>
+      <div class="nav-links glass-container">
+        <a class="glass-btn active-link active" data-nav="main" data-ru="Главная" data-en="Home">Главная</a>
+        <a class="glass-btn" data-nav="discography" data-ru="Дискография" data-en="Discography">Дискография</a>
+      </div>
+      <div class="header-actions glass-container">
+        <button class="glass-btn" id="userMenuBtn">
+          <span class="btn-text" data-ru="Профиль" data-en="Profile">Профиль</span>
+        </button>
+        <button class="glass-btn" id="themeToggle">
+          <span class="btn-text">◐</span>
+        </button>
+        <button class="glass-btn" id="langBtn">
+          <span class="btn-text">RU</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="tab-page active" id="page-main">
+      <div class="hero-fullscreen" id="hero">
+        <div class="hero-content">
+          <div class="hero-glow"></div>
+          <h1 class="hero-title"><span class="text-gradient">ROSSIN</span></h1>
+          <div class="hero-divider"></div>
+        </div>
+        <div class="scroll-hint">
+          <span data-ru="Листайте вниз" data-en="Scroll down">Листайте вниз</span>
+          <div class="scroll-arrow"></div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="section" id="discography-main">
+          <div class="section-title" data-ru="Дискография" data-en="Discography">Дискография</div>
+          <div class="coming-soon"><span data-ru="СКОРО..." data-en="SOON...">СКОРО...</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-page" id="page-discography">
+      <div class="container">
+        <div class="section-title" data-ru="Дискография" data-en="Discography">Дискография</div>
+        <div class="coming-soon"><span data-ru="СКОРО..." data-en="SOON...">СКОРО...</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      2026 Rossin.<br>Сертифицировано Академией Гиков
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
