@@ -440,3 +440,232 @@ footer {
     #c8960c 100%) 1;
   color:var(--text-secondary); font-size:.95rem; margin-top:auto;
 }
+
+/* ============================================== */
+/*           МОБИЛЬНАЯ ВЕРСИЯ (max-width: 768px)   */
+/* ============================================== */
+@media (max-width: 768px) {
+
+  header {
+    padding: 10px 0;
+  }
+
+  .header-inner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 15px;
+  }
+
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 2rem;
+    letter-spacing: 4px;
+  }
+
+  .social-btns {
+    gap: 6px;
+  }
+
+  .social-btn {
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+    max-width: 32px;
+    padding: 0 8px;
+  }
+
+  .social-btn .social-icon {
+    width: 20px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .social-btn:hover {
+    max-width: 150px;
+    padding-right: 12px;
+  }
+
+  .social-btn:hover .social-label {
+    font-size: 0.7rem;
+  }
+
+  .nav-links, .header-actions {
+    width: 100%;
+    justify-content: center;
+    padding: 4px 6px;
+    border-radius: 24px;
+  }
+
+  .glass-btn {
+    padding: 8px 16px;
+    font-size: 0.72rem;
+    border-radius: 20px;
+  }
+
+  .nav-dots {
+    right: 8px;
+    padding: 12px 8px;
+    gap: 12px;
+  }
+
+  .nav-dot {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-dot:hover {
+    height: 30px;
+    width: 20px;
+  }
+
+  .nav-dot::before {
+    width: 36px;
+    height: 36px;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 12vw, 6rem) !important;
+    letter-spacing: 8px;
+  }
+
+  .hero-divider {
+    width: 100px;
+  }
+
+  .scroll-hint span {
+    font-size: 0.75rem;
+  }
+
+  .scroll-arrow {
+    width: 24px;
+    height: 24px;
+  }
+
+  .section {
+    padding: 50px 0;
+  }
+
+  .section-title {
+    font-size: 2.8rem;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+  }
+
+  .coming-soon span {
+    font-size: clamp(2rem, 8vw, 4rem);
+    letter-spacing: 10px;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
+  .modal-content {
+    padding: 30px 20px;
+    width: 90%;
+    border-radius: 28px;
+  }
+
+  .modal h3 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .modal input {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    margin: 8px 0;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-buttons .btn {
+    width: 100%;
+    padding: 12px 0;
+  }
+
+  footer {
+    padding: 25px 15px;
+    font-size: 0.85rem;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 25px 20px;
+    border-radius: 22px;
+  }
+
+  .card h3 {
+    font-size: 1.5rem;
+  }
+
+  #page-discography {
+    padding-top: 120px;
+  }
+
+}
+
+/* ============================================== */
+/*         МАЛЕНЬКИЕ ТЕЛЕФОНЫ (max-width: 480px)  */
+/* ============================================== */
+@media (max-width: 480px) {
+
+  .logo {
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+  }
+
+  .social-btn {
+    height: 28px;
+    width: 28px;
+    min-width: 28px;
+    max-width: 28px;
+  }
+
+  .social-btn .social-icon {
+    width: 18px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .glass-btn {
+    padding: 6px 12px;
+    font-size: 0.68rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 10vw, 4rem) !important;
+    letter-spacing: 5px;
+  }
+
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .nav-dot {
+    width: 16px;
+    height: 16px;
+  }
+
+  .nav-dot:hover {
+    height: 24px;
+    width: 16px;
+  }
+
+  .nav-dots {
+    padding: 10px 6px;
+    gap: 10px;
+  }
+
+}
