@@ -23,7 +23,7 @@
   <div class="modal" id="userModal">
     <div class="modal-content">
       <h3 data-ru="Вход / Регистрация" data-en="Login / Register">Вход / Регистрация</h3>
-      <input type="text" data-ru-placeholder="Логин или email" data-en-placeholder="Login or email" placeholder="Логин или email" id="usernameInput">
+      <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="usernameInput">
       <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="passwordInput">
       <div class="modal-buttons">
         <button class="btn btn-accent" id="loginAction" data-ru="Войти" data-en="Login">Войти</button>
@@ -101,6 +101,25 @@
       2026 Rossin.<br>Сертифицировано Академией Гиков
     </div>
   </footer>
+
+  <!-- Firebase SDK (CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAdQPolnxXqtzQc8k5PjelGNYcdmV7ah8",
+      authDomain: "rossin-3db50.firebaseapp.com",
+      projectId: "rossin-3db50",
+      storageBucket: "rossin-3db50.firebasestorage.app",
+      messagingSenderId: "228441816584",
+      appId: "1:228441816584:web:faa5e64ed48dc1a5f2dbbd",
+      measurementId: "G-N6W4JD0G3Y"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    window.firebaseAuth = firebase.auth();
+  </script>
+
   <script src="script.js"></script>
 </body>
 </html>

@@ -92,13 +92,11 @@
     }
   });
 
-  // Функция обновления всех индикаторов
   function updateAllIndicators() {
     glassContainers.forEach(container => {
       const indicator = container.querySelector('.flow-indicator');
       if (!indicator) return;
       
-      // Находим активную кнопку или последнюю наведённую
       const activeBtn = container.querySelector('.glass-btn.active');
       const lastBtn = lastHoveredBtns.get(container);
       const target = lastBtn || activeBtn;
@@ -139,7 +137,6 @@
       }
     });
     
-    // Обновляем индикаторы после смены языка (текст изменился → ширина кнопок изменилась)
     setTimeout(updateAllIndicators, 100);
   }
   
@@ -161,7 +158,6 @@
       link.classList.toggle('active', link.dataset.nav === page);
     });
     
-    // Обновляем индикаторы после смены вкладки
     setTimeout(updateAllIndicators, 100);
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -311,32 +307,78 @@
     if (btnText) btnText.textContent = currentUser ? currentUser.name : (currentLang === 'ru' ? 'Профиль' : 'Profile');
   }
   
+  // Firebase Регистрация
+  registerAction.addEventListener('click', () => {
+    const email = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    if (!email || password.length < 6) {
+      userMessage.textContent = currentLang === 'ru' ? 'Минимум 6 символов' : 'Minimum 6 characters';
+      return;
+    }
+    
+    if (!window.firebaseAuth) {
+      userMessage.textContent = 'Firebase loading...';
+      return;
+    }
+    
+    window.firebaseAuth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        currentUser = { name: email.split('@')[0] };
+        updateUserBtn();
+        userMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!';
+        setTimeout(closeModal, 800);
+      })
+      .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          userMessage.textContent = currentLang === 'ru' ? 'Email уже используется' : 'Email already in use';
+        } else if (error.code === 'auth/weak-password') {
+          userMessage.textContent = currentLang === 'ru' ? 'Пароль слишком простой' : 'Password too weak';
+        } else if (error.code === 'auth/invalid-email') {
+          userMessage.textContent = currentLang === 'ru' ? 'Неверный email' : 'Invalid email';
+        } else {
+          userMessage.textContent = error.message;
+        }
+      });
+  });
+  
+  // Firebase Вход
   loginAction.addEventListener('click', () => {
-    const n = usernameInput.value.trim();
-    if (!n || !passwordInput.value.trim()) {
+    const email = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    if (!email || !password) {
       userMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields';
       return;
     }
-    currentUser = { name: n };
-    updateUserBtn();
-    userMessage.textContent = currentLang === 'ru' ? `Добро пожаловать, ${n}` : `Welcome, ${n}`;
-    setTimeout(closeModal, 800);
-  });
-  
-  registerAction.addEventListener('click', () => {
-    const n = usernameInput.value.trim();
-    if (!n || passwordInput.value.trim().length < 3) {
-      userMessage.textContent = currentLang === 'ru' ? 'Минимум 3 символа в пароле' : 'Minimum 3 characters in password';
+    
+    if (!window.firebaseAuth) {
+      userMessage.textContent = 'Firebase loading...';
       return;
     }
-    currentUser = { name: n };
-    updateUserBtn();
-    userMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!';
-    setTimeout(closeModal, 800);
+    
+    window.firebaseAuth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        currentUser = { name: email.split('@')[0] };
+        updateUserBtn();
+        userMessage.textContent = currentLang === 'ru' ? 'Добро пожаловать!' : 'Welcome!';
+        setTimeout(closeModal, 800);
+      })
+      .catch((error) => {
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          userMessage.textContent = currentLang === 'ru' ? 'Неверный email или пароль' : 'Wrong email or password';
+        } else {
+          userMessage.textContent = error.message;
+        }
+      });
   });
   
+  // Выход по двойному клику
   userMenuBtn.addEventListener('dblclick', () => {
     if (currentUser && confirm(currentLang === 'ru' ? 'Выйти из профиля?' : 'Log out?')) {
+      if (window.firebaseAuth) {
+        window.firebaseAuth.signOut();
+      }
       currentUser = null;
       updateUserBtn();
     }
