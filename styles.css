@@ -290,7 +290,7 @@ header {
 .btn-accent { background:rgba(255,255,255,0.3); border-color:rgba(255,255,255,0.35); }
 .btn-accent:hover { background:rgba(255,255,255,0.45); border-color:rgba(255,255,255,0.5); }
 
-/* Модальное окно */
+/* Модальное окно — быстрое закрытие */
 .modal {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.3);
@@ -316,7 +316,12 @@ header {
       rgba(255,255,255,0.12) 0%, 
       rgba(255,255,255,0.04) 50%, 
       rgba(255,255,255,0.08) 100%);
-  animation:modalPop .5s cubic-bezier(.34,1.56,.64,1) both;
+  animation:modalPop .35s cubic-bezier(.34,1.56,.64,1) both;
+  transition:opacity .2s ease;
+}
+.modal.closing {
+  opacity:0;
+  transition:opacity .15s ease;
 }
 @keyframes modalPop {
   from { opacity:0; transform:scale(.85) translateY(30px); }
@@ -493,6 +498,7 @@ footer {
     font-size: 0.75rem;
   }
 
+  /* Контейнеры навигации */
   .nav-links, .header-actions {
     width: 100%;
     justify-content: center;
@@ -500,12 +506,22 @@ footer {
     border-radius: 28px;
   }
 
+  /* Кнопки навигации — крупнее и с возвратом */
   .glass-btn {
-    padding: 12px 22px;
-    font-size: 0.85rem;
-    border-radius: 24px;
+    padding: 14px 26px;
+    font-size: 0.9rem;
+    border-radius: 26px;
+    transition:all .3s cubic-bezier(.25,.8,.25,1.2);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
+  .glass-btn:active {
+    opacity:0.9;
+    transform:scale(0.96);
+  }
+
+  /* Навигационные точки */
   .nav-dots {
     right: 10px;
     padding: 14px 10px;
@@ -515,11 +531,17 @@ footer {
   .nav-dot {
     width: 22px;
     height: 22px;
+    transition:all .3s cubic-bezier(.25,.8,.25,1.2);
+    -webkit-tap-highlight-color: transparent;
   }
 
   .nav-dot:hover {
     height: 34px;
     width: 22px;
+  }
+
+  .nav-dot:active {
+    transform:scale(0.9);
   }
 
   .nav-dot::before {
@@ -563,114 +585,3 @@ footer {
   .container {
     padding: 0 15px;
   }
-
-  .modal-content {
-    padding: 35px 25px;
-    width: 90%;
-    border-radius: 30px;
-  }
-
-  .modal h3 {
-    font-size: 1.8rem;
-    margin-bottom: 22px;
-  }
-
-  .modal input {
-    padding: 14px 18px;
-    font-size: 1rem;
-    margin: 10px 0;
-  }
-
-  .modal-buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .modal-buttons .btn {
-    width: 100%;
-    padding: 14px 0;
-    font-size: 0.95rem;
-  }
-
-  footer {
-    padding: 30px 15px;
-    font-size: 0.9rem;
-  }
-
-  .grid-3 {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .card {
-    padding: 30px 24px;
-    border-radius: 24px;
-  }
-
-  .card h3 {
-    font-size: 1.7rem;
-  }
-
-  .card p {
-    font-size: 1rem;
-  }
-
-  #page-discography {
-    padding-top: 130px;
-  }
-
-}
-
-/* ============================================== */
-/*         МАЛЕНЬКИЕ ТЕЛЕФОНЫ (max-width: 480px)  */
-/* ============================================== */
-@media (max-width: 480px) {
-
-  .logo {
-    font-size: 2.2rem;
-    letter-spacing: 4px;
-  }
-
-  .social-btn {
-    height: 30px;
-    width: 30px;
-    min-width: 30px;
-    max-width: 30px;
-  }
-
-  .social-btn .social-icon {
-    width: 20px;
-    height: 30px;
-    font-size: 0.9rem;
-  }
-
-  .glass-btn {
-    padding: 10px 16px;
-    font-size: 0.78rem;
-  }
-
-  .hero-title {
-    font-size: clamp(3rem, 12vw, 5rem) !important;
-    letter-spacing: 6px;
-  }
-
-  .section-title {
-    font-size: 2.8rem;
-  }
-
-  .nav-dot {
-    width: 20px;
-    height: 20px;
-  }
-
-  .nav-dot:hover {
-    height: 28px;
-    width: 20px;
-  }
-
-  .nav-dots {
-    padding: 12px 8px;
-    gap: 12px;
-  }
-
-}
