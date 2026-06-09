@@ -7,6 +7,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+  
+  <!-- Шрифт Fortnite Battlefest -->
+  <style>
+    @font-face {
+      font-family:'Fortnite Battlefest';
+      src:url('fortnitebattlefest.ttf') format('truetype');
+      font-weight:normal;
+      font-style:normal;
+      font-display:swap;
+    }
+  </style>
+  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -20,17 +32,61 @@
     <div class="nav-dot" data-target="discography-main" title="Дискография"></div>
   </div>
 
-  <div class="modal" id="userModal">
+  <!-- Модальное окно: ВХОД -->
+  <div class="modal" id="loginModal">
     <div class="modal-content">
-      <h3 data-ru="Вход / Регистрация" data-en="Login / Register">Вход / Регистрация</h3>
-      <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="usernameInput">
-      <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="passwordInput">
+      <button class="modal-close" id="closeLoginModal" title="Закрыть">
+        <span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span>
+      </button>
+      <h3 data-ru="Вход" data-en="Login">Вход</h3>
+      
+      <div class="modal-input-wrapper">
+        <span class="input-icon">✉️</span>
+        <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="loginEmail">
+      </div>
+      
+      <div class="modal-input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="loginPassword">
+      </div>
+      
       <div class="modal-buttons">
         <button class="btn btn-accent" id="loginAction" data-ru="Войти" data-en="Login">Войти</button>
-        <button class="btn" id="registerAction" data-ru="Регистрация" data-en="Register">Регистрация</button>
-        <button class="btn" id="closeModal" data-ru="Закрыть" data-en="Close">Закрыть</button>
       </div>
-      <p id="userMessage" style="margin-top:18px;font-weight:600;"></p>
+      <p id="loginMessage" style="margin-top:18px;font-weight:600;"></p>
+      <div class="modal-switch">
+        <span data-ru="Нет аккаунта?" data-en="No account?">Нет аккаунта?</span>
+        <button class="btn-switch" id="switchToRegister" data-ru="Зарегистрироваться" data-en="Register">Зарегистрироваться</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: РЕГИСТРАЦИЯ -->
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <button class="modal-close" id="closeRegisterModal" title="Закрыть">
+        <span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span>
+      </button>
+      <h3 data-ru="Регистрация" data-en="Register">Регистрация</h3>
+      
+      <div class="modal-input-wrapper">
+        <span class="input-icon">✉️</span>
+        <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="registerEmail">
+      </div>
+      
+      <div class="modal-input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="registerPassword">
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="btn btn-accent" id="registerAction" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button>
+      </div>
+      <p id="registerMessage" style="margin-top:18px;font-weight:600;"></p>
+      <div class="modal-switch">
+        <span data-ru="Уже есть аккаунт?" data-en="Already have an account?">Уже есть аккаунт?</span>
+        <button class="btn-switch" id="switchToLogin" data-ru="Войти" data-en="Login">Войти</button>
+      </div>
     </div>
   </div>
 

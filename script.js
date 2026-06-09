@@ -24,95 +24,121 @@
   let lastTarget = null;
   let currentSection = 'hero';
 
-  const lastHoveredBtns = new Map();
-
-  const glassContainers = $$('.glass-container');
-  glassContainers.forEach(container => {
-    const indicator = document.createElement('div');
-    indicator.className = 'flow-indicator';
-    indicator.style.opacity = '0';
-    indicator.style.transition = 'all .5s cubic-bezier(.25,.8,.25,1.2)';
-    container.appendChild(indicator);
-    
-    const buttons = container.querySelectorAll('.glass-btn');
-    
-    const activeBtn = container.querySelector('.glass-btn.active');
-    if (activeBtn) {
-      lastHoveredBtns.set(container, activeBtn);
+  // ==================== ИНДИКАТОР ====================
+  const header = $('header');
+  const allBtns = header ? header.querySelectorAll('.glass-btn') : [];
+  
+  const ind = document.createElement('div');
+  ind.style.cssText = `
+    position: fixed;
+    z-index: 101;
+    pointer-events: none;
+    border-radius: 24px;
+    opacity: 0;
+    background: linear-gradient(135deg, rgba(180,170,210,0.4) 0%, rgba(200,190,230,0.3) 20%, rgba(170,200,220,0.35) 40%, rgba(190,180,220,0.3) 60%, rgba(200,190,210,0.35) 80%, rgba(180,170,210,0.4) 100%);
+    background-size: 400% 400%;
+    animation: flowGradient 6s ease infinite, flowDirection 8s ease infinite;
+    box-shadow: 0 0 25px rgba(180,170,210,0.25), 0 0 50px rgba(180,170,210,0.1), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.05);
+    transition: left .5s cubic-bezier(.25,.8,.25,1.2), width .5s cubic-bezier(.25,.8,.25,1.2), opacity .3s ease;
+  `;
+  document.body.appendChild(ind);
+  
+  let lastBtn = allBtns[0] || null;
+  let isHovering = false;
+  let indicatorReady = false;
+  
+  // Фиксирует вертикальные границы индикатора по всем кнопкам
+  function updateVertical() {
+    if (allBtns.length === 0) return;
+    let minTop = Infinity, maxBottom = 0;
+    allBtns.forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      if (rect.width === 0) return;
+      minTop = Math.min(minTop, rect.top);
+      maxBottom = Math.max(maxBottom, rect.bottom);
+    });
+    if (minTop === Infinity) return;
+    ind.style.top = minTop + 'px';
+    ind.style.height = (maxBottom - minTop) + 'px';
+  }
+  
+  // Устанавливает горизонтальную позицию по кнопке
+  function applyHorizontal(btn) {
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    ind.style.left = rect.left + 'px';
+    ind.style.width = rect.width + 'px';
+  }
+  
+  // Окончательная инициализация индикатора
+  function showIndicator() {
+    updateVertical();
+    applyHorizontal(lastBtn);
+    ind.style.opacity = '0.35';
+    indicatorReady = true;
+  }
+  
+  // Ожидание завершения анимации header
+  function waitForHeaderAnimation() {
+    if (!header) {
+      setTimeout(showIndicator, 100);
+      return;
     }
     
-    function moveIndicatorTo(btn, instant = false) {
-      if (!btn) return;
-      const btnRect = btn.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      
-      if (instant) {
-        indicator.style.transition = 'none';
-      } else {
-        indicator.style.transition = 'all .5s cubic-bezier(.25,.8,.25,1.2)';
-      }
-      
-      indicator.style.left = (btnRect.left - containerRect.left) + 'px';
-      indicator.style.width = btnRect.width + 'px';
-      indicator.style.opacity = '1';
-      
-      if (instant) {
-        indicator.offsetHeight;
-        setTimeout(() => {
-          indicator.style.transition = 'all .5s cubic-bezier(.25,.8,.25,1.2)';
-        }, 50);
-      }
+    // Если анимация уже закончилась (событие animationend могло произойти раньше)
+    const headerAnimation = header.getAnimations ? header.getAnimations().find(a => a.animationName === 'headerSlideDown') : null;
+    if (!headerAnimation || headerAnimation.playState === 'finished') {
+      // Небольшая задержка на всякий случай
+      setTimeout(showIndicator, 50);
+      return;
     }
     
-    container.addEventListener('mouseenter', () => {
-      const lastBtn = lastHoveredBtns.get(container);
-      const target = lastBtn || activeBtn || buttons[0];
-      if (target) {
-        moveIndicatorTo(target, false);
-      }
-    });
-    
-    container.addEventListener('mouseleave', () => {
-      indicator.style.transition = 'opacity .15s ease';
-      indicator.style.opacity = '0';
-    });
-    
-    buttons.forEach(btn => {
-      btn.addEventListener('mouseenter', function() {
-        lastHoveredBtns.set(container, this);
-        moveIndicatorTo(this, false);
-      });
-    });
-    
-    if (activeBtn) {
-      setTimeout(() => {
-        moveIndicatorTo(activeBtn, true);
-        indicator.style.opacity = '0.35';
-      }, 300);
+    // Ждём конца анимации
+    header.addEventListener('animationend', function handler() {
+      header.removeEventListener('animationend', handler);
+      setTimeout(showIndicator, 50);
+    }, { once: true });
+  }
+  
+  // Старт после полной загрузки страницы и шрифтов
+  function scheduleIndicator() {
+    if (document.readyState === 'complete') {
+      waitForHeaderAnimation();
+    } else {
+      window.addEventListener('load', waitForHeaderAnimation);
     }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(waitForHeaderAnimation);
+    }
+  }
+  scheduleIndicator();
+  
+  // Наведение
+  allBtns.forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      if (!indicatorReady) return;
+      isHovering = true;
+      lastBtn = btn;
+      applyHorizontal(btn);
+      ind.style.opacity = '1';
+    });
+    
+    btn.addEventListener('mouseleave', () => {
+      if (!indicatorReady) return;
+      isHovering = false;
+      ind.style.opacity = '0.35';
+    });
+  });
+  
+  // Ресайз
+  window.addEventListener('resize', () => {
+    if (!indicatorReady || !lastBtn) return;
+    updateVertical();
+    applyHorizontal(lastBtn);
+    ind.style.opacity = isHovering ? '1' : '0.35';
   });
 
-  function updateAllIndicators() {
-    glassContainers.forEach(container => {
-      const indicator = container.querySelector('.flow-indicator');
-      if (!indicator) return;
-      
-      const activeBtn = container.querySelector('.glass-btn.active');
-      const lastBtn = lastHoveredBtns.get(container);
-      const target = lastBtn || activeBtn;
-      
-      if (target) {
-        const btnRect = target.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        indicator.style.transition = 'none';
-        indicator.style.left = (btnRect.left - containerRect.left) + 'px';
-        indicator.style.width = btnRect.width + 'px';
-        indicator.offsetHeight;
-        indicator.style.transition = 'all .5s cubic-bezier(.25,.8,.25,1.2)';
-      }
-    });
-  }
-
+  // ==================== ТЕМА ====================
   function setTheme(dark) {
     body.classList.toggle('dark-theme', dark);
     localStorage.setItem('rossinTheme', dark ? 'dark' : 'light');
@@ -120,6 +146,7 @@
   setTheme(false);
   themeToggle.addEventListener('click', () => setTheme(!body.classList.contains('dark-theme')));
 
+  // ==================== ЯЗЫК ====================
   function setLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('rossinLang', lang);
@@ -136,8 +163,6 @@
         }
       }
     });
-    
-    setTimeout(updateAllIndicators, 100);
   }
   
   setLanguage(localStorage.getItem('rossinLang') === 'en' ? 'en' : 'ru');
@@ -147,6 +172,7 @@
     setLanguage(newLang);
   });
 
+  // ==================== НАВИГАЦИЯ ====================
   function navigateTo(page) {
     tabPages.forEach(p => p.classList.remove('active'));
     const target = $(`#page-${page}`);
@@ -157,8 +183,6 @@
     navLinks.forEach(link => {
       link.classList.toggle('active', link.dataset.nav === page);
     });
-    
-    setTimeout(updateAllIndicators, 100);
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
     updateDotsVisibility(page);
@@ -289,6 +313,7 @@
     navigateTo(link.dataset.nav);
   }));
 
+  // ==================== МОДАЛЬНОЕ ОКНО ====================
   function openModal() {
     userModal.classList.add('active');
     usernameInput.value = '';
@@ -307,7 +332,6 @@
     if (btnText) btnText.textContent = currentUser ? currentUser.name : (currentLang === 'ru' ? 'Профиль' : 'Profile');
   }
   
-  // Firebase Регистрация
   registerAction.addEventListener('click', () => {
     const email = usernameInput.value.trim();
     const password = passwordInput.value.trim();
@@ -342,7 +366,6 @@
       });
   });
   
-  // Firebase Вход
   loginAction.addEventListener('click', () => {
     const email = usernameInput.value.trim();
     const password = passwordInput.value.trim();
@@ -373,7 +396,6 @@
       });
   });
   
-  // Выход по двойному клику
   userMenuBtn.addEventListener('dblclick', () => {
     if (currentUser && confirm(currentLang === 'ru' ? 'Выйти из профиля?' : 'Log out?')) {
       if (window.firebaseAuth) {
