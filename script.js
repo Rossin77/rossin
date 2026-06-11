@@ -6,22 +6,28 @@
   const themeToggle = $('#themeToggle');
   const navLinks = $$('[data-nav]');
   const tabPages = $$('.tab-page');
-  const userModal = $('#userModal');
+  const loginModal = $('#loginModal');
+  const registerModal = $('#registerModal');
   const userMenuBtn = $('#userMenuBtn');
-  const closeModalBtn = $('#closeModal');
+  const closeLoginModal = $('#closeLoginModal');
+  const closeRegisterModal = $('#closeRegisterModal');
   const loginAction = $('#loginAction');
   const registerAction = $('#registerAction');
-  const usernameInput = $('#usernameInput');
-  const passwordInput = $('#passwordInput');
-  const userMessage = $('#userMessage');
+  const loginEmail = $('#loginEmail');
+  const loginPassword = $('#loginPassword');
+  const registerEmail = $('#registerEmail');
+  const registerPassword = $('#registerPassword');
+  const loginMessage = $('#loginMessage');
+  const registerMessage = $('#registerMessage');
   const logoBtn = $('#logoBtn');
   const langBtn = $('#langBtn');
   const navDots = $$('.nav-dot');
+  const switchToRegister = $('#switchToRegister');
+  const switchToLogin = $('#switchToLogin');
   
   let currentUser = null;
   let currentLang = 'ru';
   let isDragging = false;
-  let lastTarget = null;
   let currentSection = 'hero';
 
   // ==================== ИНДИКАТОР ====================
@@ -47,7 +53,6 @@
   let isHovering = false;
   let indicatorReady = false;
   
-  // Фиксирует вертикальные границы индикатора по всем кнопкам
   function updateVertical() {
     if (allBtns.length === 0) return;
     let minTop = Infinity, maxBottom = 0;
@@ -62,7 +67,6 @@
     ind.style.height = (maxBottom - minTop) + 'px';
   }
   
-  // Устанавливает горизонтальную позицию по кнопке
   function applyHorizontal(btn) {
     if (!btn) return;
     const rect = btn.getBoundingClientRect();
@@ -70,7 +74,6 @@
     ind.style.width = rect.width + 'px';
   }
   
-  // Окончательная инициализация индикатора
   function showIndicator() {
     updateVertical();
     applyHorizontal(lastBtn);
@@ -78,42 +81,23 @@
     indicatorReady = true;
   }
   
-  // Ожидание завершения анимации header
   function waitForHeaderAnimation() {
-    if (!header) {
-      setTimeout(showIndicator, 100);
-      return;
-    }
-    
-    // Если анимация уже закончилась (событие animationend могло произойти раньше)
+    if (!header) { setTimeout(showIndicator, 100); return; }
     const headerAnimation = header.getAnimations ? header.getAnimations().find(a => a.animationName === 'headerSlideDown') : null;
-    if (!headerAnimation || headerAnimation.playState === 'finished') {
-      // Небольшая задержка на всякий случай
-      setTimeout(showIndicator, 50);
-      return;
-    }
-    
-    // Ждём конца анимации
+    if (!headerAnimation || headerAnimation.playState === 'finished') { setTimeout(showIndicator, 50); return; }
     header.addEventListener('animationend', function handler() {
       header.removeEventListener('animationend', handler);
       setTimeout(showIndicator, 50);
     }, { once: true });
   }
   
-  // Старт после полной загрузки страницы и шрифтов
   function scheduleIndicator() {
-    if (document.readyState === 'complete') {
-      waitForHeaderAnimation();
-    } else {
-      window.addEventListener('load', waitForHeaderAnimation);
-    }
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(waitForHeaderAnimation);
-    }
+    if (document.readyState === 'complete') { waitForHeaderAnimation(); }
+    else { window.addEventListener('load', waitForHeaderAnimation); }
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(waitForHeaderAnimation); }
   }
   scheduleIndicator();
   
-  // Наведение
   allBtns.forEach(btn => {
     btn.addEventListener('mouseenter', () => {
       if (!indicatorReady) return;
@@ -122,7 +106,6 @@
       applyHorizontal(btn);
       ind.style.opacity = '1';
     });
-    
     btn.addEventListener('mouseleave', () => {
       if (!indicatorReady) return;
       isHovering = false;
@@ -130,7 +113,6 @@
     });
   });
   
-  // Ресайз
   window.addEventListener('resize', () => {
     if (!indicatorReady || !lastBtn) return;
     updateVertical();
@@ -139,10 +121,7 @@
   });
 
   // ==================== ТЕМА ====================
-  function setTheme(dark) {
-    body.classList.toggle('dark-theme', dark);
-    localStorage.setItem('rossinTheme', dark ? 'dark' : 'light');
-  }
+  function setTheme(dark) { body.classList.toggle('dark-theme', dark); localStorage.setItem('rossinTheme', dark ? 'dark' : 'light'); }
   setTheme(false);
   themeToggle.addEventListener('click', () => setTheme(!body.classList.contains('dark-theme')));
 
@@ -152,258 +131,154 @@
     localStorage.setItem('rossinLang', lang);
     const langText = langBtn.querySelector('.btn-text');
     if (langText) langText.textContent = lang.toUpperCase();
-    
     $$('[data-ru]').forEach(el => {
       const key = `data-${lang}`;
       if (el.hasAttribute(key)) {
-        if (el.tagName === 'INPUT') {
-          el.placeholder = el.getAttribute(`${key}-placeholder`) || el.getAttribute(key);
-        } else {
-          el.textContent = el.getAttribute(key);
-        }
+        if (el.tagName === 'INPUT') { el.placeholder = el.getAttribute(`${key}-placeholder`) || el.getAttribute(key); }
+        else { el.textContent = el.getAttribute(key); }
       }
     });
+    if (loginAction) loginAction.textContent = lang === 'ru' ? 'Войти' : 'Login';
+    if (registerAction) registerAction.textContent = lang === 'ru' ? 'Создать аккаунт' : 'Create account';
+    updateUserBtn();
   }
-  
   setLanguage(localStorage.getItem('rossinLang') === 'en' ? 'en' : 'ru');
-  
-  langBtn.addEventListener('click', () => {
-    const newLang = currentLang === 'ru' ? 'en' : 'ru';
-    setLanguage(newLang);
-  });
+  langBtn.addEventListener('click', () => setLanguage(currentLang === 'ru' ? 'en' : 'ru'));
 
   // ==================== НАВИГАЦИЯ ====================
   function navigateTo(page) {
     tabPages.forEach(p => p.classList.remove('active'));
     const target = $(`#page-${page}`);
-    if (target) {
-      target.classList.add('active');
-      setLanguage(currentLang);
-    }
-    navLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.nav === page);
-    });
-    
+    if (target) { target.classList.add('active'); setLanguage(currentLang); }
+    navLinks.forEach(link => link.classList.toggle('active', link.dataset.nav === page));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    updateDotsVisibility(page);
-    
-    if (page === 'main') {
-      currentSection = 'hero';
-      navDots.forEach(d => d.classList.remove('active'));
-      navDots[0].classList.add('active');
-    }
-  }
-  
-  function updateDotsVisibility(page) {
-    const container = $('.nav-dots');
-    if (page === 'main') {
-      container.classList.remove('hidden');
-    } else {
-      container.classList.add('hidden');
-    }
+    $('.nav-dots').classList.toggle('hidden', page !== 'main');
+    if (page === 'main') { currentSection = 'hero'; navDots.forEach(d => d.classList.remove('active')); navDots[0].classList.add('active'); }
   }
   
   function scrollToTarget(dot) {
-    const targetId = dot.dataset.target;
-    const target = $(`#${targetId}`);
-    
-    if (!target) return;
-    if (targetId === currentSection) return;
-    
-    lastTarget = target;
-    currentSection = targetId;
-    
-    navDots.forEach(d => d.classList.remove('active'));
-    dot.classList.add('active');
-    
-    target.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-    setTimeout(() => {
-      const headerHeight = 80;
-      const targetRect = target.getBoundingClientRect();
-      if (targetRect.top < headerHeight) {
-        window.scrollBy({ top: targetRect.top - headerHeight, behavior: 'smooth' });
-      }
-    }, 50);
-  }
-  
-  function getDotUnderPoint(x, y) {
-    for (const dot of navDots) {
-      const rect = dot.getBoundingClientRect();
-      if (x >= rect.left - 10 && x <= rect.right + 10 && y >= rect.top - 10 && y <= rect.bottom + 10) {
-        return dot;
-      }
-    }
-    return null;
+    const target = $(`#${dot.dataset.target}`);
+    if (!target || dot.dataset.target === currentSection) return;
+    currentSection = dot.dataset.target;
+    navDots.forEach(d => d.classList.remove('active')); dot.classList.add('active');
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => { const top = target.getBoundingClientRect(); if (top < 80) window.scrollBy({ top: top - 80, behavior: 'smooth' }); }, 50);
   }
   
   navDots.forEach(dot => {
-    dot.addEventListener('click', function(e) {
-      e.preventDefault();
-      lastTarget = null;
-      scrollToTarget(this);
-    });
-    dot.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      isDragging = true;
-      lastTarget = null;
-      scrollToTarget(this);
-    });
+    dot.addEventListener('click', e => { e.preventDefault(); scrollToTarget(dot); });
+    dot.addEventListener('mousedown', e => { e.preventDefault(); isDragging = true; scrollToTarget(dot); });
   });
-  
-  document.addEventListener('mousemove', function(e) {
+  document.addEventListener('mousemove', e => {
     if (!isDragging) return;
-    const dotUnderCursor = getDotUnderPoint(e.clientX, e.clientY);
-    if (dotUnderCursor) scrollToTarget(dotUnderCursor);
+    const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return e.clientX >= r.left-10 && e.clientX <= r.right+10 && e.clientY >= r.top-10 && e.clientY <= r.bottom+10; });
+    if (dot) scrollToTarget(dot);
   });
-  
-  document.addEventListener('mouseup', function() { isDragging = false; lastTarget = null; });
-  
-  navDots.forEach(dot => {
-    dot.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      isDragging = true;
-      lastTarget = null;
-      scrollToTarget(this);
-    });
-  });
-  
-  document.addEventListener('touchmove', function(e) {
+  document.addEventListener('mouseup', () => isDragging = false);
+  navDots.forEach(dot => dot.addEventListener('touchstart', e => { e.preventDefault(); isDragging = true; scrollToTarget(dot); }));
+  document.addEventListener('touchmove', e => {
     if (!isDragging) return;
-    const touch = e.touches[0];
-    const dotUnderTouch = getDotUnderPoint(touch.clientX, touch.clientY);
-    if (dotUnderTouch) scrollToTarget(dotUnderTouch);
+    const t = e.touches[0];
+    const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return t.clientX >= r.left-10 && t.clientX <= r.right+10 && t.clientY >= r.top-10 && t.clientY <= r.bottom+10; });
+    if (dot) scrollToTarget(dot);
   });
+  document.addEventListener('touchend', () => isDragging = false);
   
-  document.addEventListener('touchend', function() { isDragging = false; lastTarget = null; });
-  
-  function updateActiveDot() {
+  window.addEventListener('scroll', () => {
     if (isDragging) return;
-    const hero = $('#hero');
-    const discography = $('#discography-main');
-    
-    if (!hero) return;
-    
-    if (!discography) {
-      navDots.forEach(d => d.classList.remove('active'));
-      navDots[0].classList.add('active');
-      currentSection = 'hero';
-      return;
-    }
-    
-    const discographyTop = discography.getBoundingClientRect().top;
-    
+    const disc = $('#discography-main');
+    if (!disc) { navDots.forEach(d => d.classList.remove('active')); navDots[0].classList.add('active'); currentSection = 'hero'; return; }
     navDots.forEach(d => d.classList.remove('active'));
-    if (discographyTop > window.innerHeight * 0.5) {
-      navDots[0].classList.add('active');
-      currentSection = 'hero';
-    } else {
-      navDots[1].classList.add('active');
-      currentSection = 'discography-main';
-    }
-  }
-  
-  window.addEventListener('scroll', updateActiveDot);
-  
-  logoBtn.addEventListener('click', () => {
-    window.location.href = window.location.origin + window.location.pathname;
+    if (disc.getBoundingClientRect().top > window.innerHeight * 0.5) { navDots[0].classList.add('active'); currentSection = 'hero'; }
+    else { navDots[1].classList.add('active'); currentSection = 'discography-main'; }
   });
   
-  navLinks.forEach(link => link.addEventListener('click', (e) => { 
-    e.preventDefault();
-    navigateTo(link.dataset.nav);
-  }));
+  logoBtn.addEventListener('click', () => location.href = location.origin + location.pathname);
+  navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.dataset.nav); }));
 
-  // ==================== МОДАЛЬНОЕ ОКНО ====================
-  function openModal() {
-    userModal.classList.add('active');
-    usernameInput.value = '';
-    passwordInput.value = '';
-    userMessage.textContent = '';
+  // ==================== МОДАЛЬНЫЕ ОКНА ====================
+  function openLoginModal() {
+    loginModal.classList.add('active');
+    registerModal.classList.remove('active');
+    loginEmail.value = '';
+    loginPassword.value = '';
+    loginMessage.textContent = '';
     setLanguage(currentLang);
   }
-  function closeModal() { userModal.classList.remove('active'); }
   
-  userMenuBtn.addEventListener('click', openModal);
-  closeModalBtn.addEventListener('click', closeModal);
-  window.addEventListener('click', (e) => { if (e.target === userModal) closeModal(); });
+  function closeAllModals() {
+    loginModal.classList.remove('active');
+    registerModal.classList.remove('active');
+  }
+  
+  userMenuBtn.addEventListener('click', openLoginModal);
+  closeLoginModal.addEventListener('click', closeAllModals);
+  closeRegisterModal.addEventListener('click', closeAllModals);
+  window.addEventListener('click', e => { if (e.target === loginModal || e.target === registerModal) closeAllModals(); });
+  switchToRegister.addEventListener('click', () => {
+    loginModal.classList.remove('active');
+    registerModal.classList.add('active');
+    registerEmail.value = '';
+    registerPassword.value = '';
+    registerMessage.textContent = '';
+    setLanguage(currentLang);
+  });
+  switchToLogin.addEventListener('click', openLoginModal);
   
   function updateUserBtn() {
     const btnText = userMenuBtn.querySelector('.btn-text');
     if (btnText) btnText.textContent = currentUser ? currentUser.name : (currentLang === 'ru' ? 'Профиль' : 'Profile');
   }
-  
-  registerAction.addEventListener('click', () => {
-    const email = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    
-    if (!email || password.length < 6) {
-      userMessage.textContent = currentLang === 'ru' ? 'Минимум 6 символов' : 'Minimum 6 characters';
-      return;
-    }
-    
-    if (!window.firebaseAuth) {
-      userMessage.textContent = 'Firebase loading...';
-      return;
-    }
-    
-    window.firebaseAuth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        currentUser = { name: email.split('@')[0] };
-        updateUserBtn();
-        userMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!';
-        setTimeout(closeModal, 800);
-      })
-      .catch((error) => {
-        if (error.code === 'auth/email-already-in-use') {
-          userMessage.textContent = currentLang === 'ru' ? 'Email уже используется' : 'Email already in use';
-        } else if (error.code === 'auth/weak-password') {
-          userMessage.textContent = currentLang === 'ru' ? 'Пароль слишком простой' : 'Password too weak';
-        } else if (error.code === 'auth/invalid-email') {
-          userMessage.textContent = currentLang === 'ru' ? 'Неверный email' : 'Invalid email';
-        } else {
-          userMessage.textContent = error.message;
-        }
-      });
+
+  // ==================== FIREBASE ====================
+  window.firebaseAuth.onAuthStateChanged(user => {
+    currentUser = user ? { name: user.displayName || user.email.split('@')[0], email: user.email } : null;
+    updateUserBtn();
   });
-  
-  loginAction.addEventListener('click', () => {
-    const email = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    
-    if (!email || !password) {
-      userMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields';
-      return;
-    }
-    
-    if (!window.firebaseAuth) {
-      userMessage.textContent = 'Firebase loading...';
-      return;
-    }
-    
-    window.firebaseAuth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        currentUser = { name: email.split('@')[0] };
-        updateUserBtn();
-        userMessage.textContent = currentLang === 'ru' ? 'Добро пожаловать!' : 'Welcome!';
-        setTimeout(closeModal, 800);
-      })
-      .catch((error) => {
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          userMessage.textContent = currentLang === 'ru' ? 'Неверный email или пароль' : 'Wrong email or password';
-        } else {
-          userMessage.textContent = error.message;
-        }
-      });
+
+  const authMessages = {
+    'auth/invalid-credential': ['Неверный email или пароль', 'Wrong email or password'],
+    'auth/user-not-found': ['Пользователь не найден', 'User not found'],
+    'auth/wrong-password': ['Неверный пароль', 'Wrong password'],
+    'auth/invalid-email': ['Неверный email', 'Invalid email'],
+    'auth/too-many-requests': ['Слишком много попыток. Подождите', 'Too many attempts. Wait'],
+    'auth/email-already-in-use': ['Email уже используется', 'Email already in use'],
+    'auth/weak-password': ['Пароль слишком простой', 'Password too weak']
+  };
+
+  loginAction.addEventListener('click', async () => {
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
+    if (!email || !password) { loginMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; }
+    loginAction.disabled = true; loginAction.textContent = '...';
+    try {
+      await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+      loginMessage.textContent = currentLang === 'ru' ? 'Добро пожаловать!' : 'Welcome!';
+      setTimeout(closeAllModals, 800);
+    } catch (error) {
+      const msg = authMessages[error.code];
+      loginMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message;
+    } finally { loginAction.disabled = false; setLanguage(currentLang); }
   });
-  
+
+  registerAction.addEventListener('click', async () => {
+    const email = registerEmail.value.trim();
+    const password = registerPassword.value.trim();
+    if (!email || !password) { registerMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; }
+    if (password.length < 6) { registerMessage.textContent = currentLang === 'ru' ? 'Минимум 6 символов' : 'Minimum 6 characters'; return; }
+    registerAction.disabled = true; registerAction.textContent = '...';
+    try {
+      await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
+      registerMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!';
+      setTimeout(closeAllModals, 800);
+    } catch (error) {
+      const msg = authMessages[error.code];
+      registerMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message;
+    } finally { registerAction.disabled = false; setLanguage(currentLang); }
+  });
+
   userMenuBtn.addEventListener('dblclick', () => {
-    if (currentUser && confirm(currentLang === 'ru' ? 'Выйти из профиля?' : 'Log out?')) {
-      if (window.firebaseAuth) {
-        window.firebaseAuth.signOut();
-      }
-      currentUser = null;
-      updateUserBtn();
-    }
+    if (currentUser && confirm(currentLang === 'ru' ? 'Выйти из профиля?' : 'Log out?')) window.firebaseAuth.signOut();
   });
   
   updateUserBtn();
