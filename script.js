@@ -30,6 +30,12 @@
   let isDragging = false;
   let currentSection = 'hero';
 
+  // Сбрасываем скролл до того как браузер восстановит позицию
+  if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
+
   // ==================== ИНДИКАТОР ====================
   const header = $('header');
   const allBtns = header ? header.querySelectorAll('.glass-btn') : [];
@@ -151,9 +157,14 @@
     const target = $(`#page-${page}`);
     if (target) { target.classList.add('active'); setLanguage(currentLang); }
     navLinks.forEach(link => link.classList.toggle('active', link.dataset.nav === page));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    $('.nav-dots').classList.toggle('hidden', page !== 'main');
+    updateDotsVisibility(page);
     if (page === 'main') { currentSection = 'hero'; navDots.forEach(d => d.classList.remove('active')); navDots[0].classList.add('active'); }
+  }
+  
+  function updateDotsVisibility(page) {
+    const container = $('.nav-dots');
+    if (page === 'main') { container.classList.remove('hidden'); }
+    else { container.classList.add('hidden'); }
   }
   
   function scrollToTarget(dot) {
@@ -162,7 +173,7 @@
     currentSection = dot.dataset.target;
     navDots.forEach(d => d.classList.remove('active')); dot.classList.add('active');
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => { const top = target.getBoundingClientRect(); if (top < 80) window.scrollBy({ top: top - 80, behavior: 'smooth' }); }, 50);
+    setTimeout(() => { const top = target.getBoundingClientRect().top; if (top < 80) window.scrollBy({ top: top - 80, behavior: 'smooth' }); }, 50);
   }
   
   navDots.forEach(dot => {
