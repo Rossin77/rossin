@@ -7,18 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
-  
-  <!-- Шрифт Fortnite Battlefest -->
   <style>
     @font-face {
-      font-family:'Fortnite Battlefest';
-      src:url('fortnitebattlefest.ttf') format('truetype');
-      font-weight:normal;
-      font-style:normal;
-      font-display:swap;
+      font-family: 'Fortnite Battlefest';
+      src: url('fortnitebattlefest.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
     }
   </style>
-  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -26,84 +23,40 @@
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
-
   <div class="nav-dots">
     <div class="nav-dot active" data-target="hero" title="Главная"></div>
     <div class="nav-dot" data-target="discography-main" title="Дискография"></div>
   </div>
-
-  <!-- Модальное окно: ВХОД -->
   <div class="modal" id="loginModal">
     <div class="modal-content">
-      <button class="modal-close" id="closeLoginModal" title="Закрыть">
-        <span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span>
-      </button>
+      <button class="modal-close" id="closeLoginModal" title="Закрыть"><span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span></button>
       <h3 data-ru="Вход" data-en="Login">Вход</h3>
-      
-      <div class="modal-input-wrapper">
-        <span class="input-icon">✉️</span>
-        <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="loginEmail">
-      </div>
-      
-      <div class="modal-input-wrapper">
-        <span class="input-icon">🔒</span>
-        <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="loginPassword">
-      </div>
-      
-      <div class="modal-buttons">
-        <button class="btn btn-accent" id="loginAction" data-ru="Войти" data-en="Login">Войти</button>
-      </div>
+      <div class="modal-input-wrapper"><span class="input-icon">✉️</span><input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="loginEmail"></div>
+      <div class="modal-input-wrapper"><span class="input-icon">🔒</span><input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="loginPassword"></div>
+      <div class="modal-buttons"><button class="btn btn-accent" id="loginAction" data-ru="Войти" data-en="Login">Войти</button></div>
       <p id="loginMessage" style="margin-top:18px;font-weight:600;"></p>
-      <div class="modal-switch">
-        <span data-ru="Нет аккаунта?" data-en="No account?">Нет аккаунта?</span>
-        <button class="btn-switch" id="switchToRegister" data-ru="Зарегистрироваться" data-en="Register">Зарегистрироваться</button>
-      </div>
+      <div class="modal-switch"><span data-ru="Нет аккаунта?" data-en="No account?">Нет аккаунта?</span><button class="btn-switch" id="switchToRegister" data-ru="Зарегистрироваться" data-en="Register">Зарегистрироваться</button></div>
     </div>
   </div>
-
-  <!-- Модальное окно: РЕГИСТРАЦИЯ -->
   <div class="modal" id="registerModal">
     <div class="modal-content">
-      <button class="modal-close" id="closeRegisterModal" title="Закрыть">
-        <span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span>
-      </button>
+      <button class="modal-close" id="closeRegisterModal" title="Закрыть"><span class="close-label" data-ru="Закрыть" data-en="Close">Закрыть</span></button>
       <h3 data-ru="Регистрация" data-en="Register">Регистрация</h3>
-      
-      <div class="modal-input-wrapper">
-        <span class="input-icon">✉️</span>
-        <input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="registerEmail">
-      </div>
-      
-      <div class="modal-input-wrapper">
-        <span class="input-icon">🔒</span>
-        <input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="registerPassword">
-      </div>
-      
-      <div class="modal-buttons">
-        <button class="btn btn-accent" id="registerAction" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button>
-      </div>
+      <div class="modal-input-wrapper"><span class="input-icon">✉️</span><input type="email" data-ru-placeholder="Email" data-en-placeholder="Email" placeholder="Email" id="registerEmail"></div>
+      <div class="modal-input-wrapper"><span class="input-icon">🔒</span><input type="password" data-ru-placeholder="Пароль" data-en-placeholder="Password" placeholder="Пароль" id="registerPassword"></div>
+      <div class="modal-buttons"><button class="btn btn-accent" id="registerAction" data-ru="Создать аккаунт" data-en="Create account">Создать аккаунт</button></div>
       <p id="registerMessage" style="margin-top:18px;font-weight:600;"></p>
-      <div class="modal-switch">
-        <span data-ru="Уже есть аккаунт?" data-en="Already have an account?">Уже есть аккаунт?</span>
-        <button class="btn-switch" id="switchToLogin" data-ru="Войти" data-en="Login">Войти</button>
-      </div>
+      <div class="modal-switch"><span data-ru="Уже есть аккаунт?" data-en="Already have an account?">Уже есть аккаунт?</span><button class="btn-switch" id="switchToLogin" data-ru="Войти" data-en="Login">Войти</button></div>
     </div>
   </div>
-
   <header>
     <div class="header-inner">
       <div class="header-left">
         <div class="logo" id="logoBtn">ROSSIN</div>
         <div class="social-btns">
-          <a href="https://vk.com/flexinforces" target="_blank" class="social-btn vk" title="VK">
-            <span class="social-icon">📘</span><span class="social-label">VK</span>
-          </a>
-          <a href="https://www.instagram.com/rossinsinss?igsh=cjJwMWJlZWRwc3ht" target="_blank" class="social-btn instagram" title="Instagram">
-            <span class="social-icon">📷</span><span class="social-label">Instagram</span>
-          </a>
-          <a href="https://soundcloud.com/rossin-824192136" target="_blank" class="social-btn soundcloud" title="SoundCloud">
-            <span class="social-icon">☁️</span><span class="social-label">SoundCloud</span>
-          </a>
+          <a href="https://vk.com/flexinforces" target="_blank" class="social-btn vk" title="VK"><span class="social-icon"><img src="img/VK.png" width="20" height="20" alt="VK"></span><span class="social-label">VK</span></a>
+          <a href="https://www.instagram.com/rossinsinss?igsh=cjJwMWJlZWRwc3ht" target="_blank" class="social-btn instagram" title="Instagram"><span class="social-icon"><img src="img/Instagram.png" width="20" height="20" alt="Instagram"></span><span class="social-label">Instagram</span></a>
+          <a href="https://soundcloud.com/rossin-824192136" target="_blank" class="social-btn soundcloud" title="SoundCloud"><span class="social-icon"><img src="img/SoundCloud.png" width="20" height="20" alt="SoundCloud"></span><span class="social-label">SoundCloud</span></a>
         </div>
       </div>
       <div class="nav-links glass-container">
@@ -111,19 +64,12 @@
         <a class="glass-btn" data-nav="discography" data-ru="Дискография" data-en="Discography">Дискография</a>
       </div>
       <div class="header-actions glass-container">
-        <button class="glass-btn" id="userMenuBtn">
-          <span class="btn-text" data-ru="Профиль" data-en="Profile">Профиль</span>
-        </button>
-        <button class="glass-btn" id="themeToggle">
-          <span class="btn-text">◐</span>
-        </button>
-        <button class="glass-btn" id="langBtn">
-          <span class="btn-text">RU</span>
-        </button>
+        <button class="glass-btn" id="userMenuBtn"><span class="btn-text" data-ru="Профиль" data-en="Profile">Профиль</span></button>
+        <button class="glass-btn" id="themeToggle"><span class="btn-text">◐</span></button>
+        <button class="glass-btn" id="langBtn"><span class="btn-text">RU</span></button>
       </div>
     </div>
   </header>
-
   <main>
     <div class="tab-page active" id="page-main">
       <div class="hero-fullscreen" id="hero">
@@ -132,10 +78,7 @@
           <h1 class="hero-title"><span class="text-gradient">ROSSIN</span></h1>
           <div class="hero-divider"></div>
         </div>
-        <div class="scroll-hint">
-          <span data-ru="Листайте вниз" data-en="Scroll down">Листайте вниз</span>
-          <div class="scroll-arrow"></div>
-        </div>
+        <div class="scroll-hint"><span data-ru="Листайте вниз" data-en="Scroll down">Листайте вниз</span><div class="scroll-arrow"></div></div>
       </div>
       <div class="container">
         <div class="section" id="discography-main">
@@ -151,14 +94,9 @@
       </div>
     </div>
   </main>
-
   <footer>
-    <div class="container">
-      2026 Rossin.<br>Сертифицировано Академией Гиков
-    </div>
+    <div class="container">2026 Rossin.<br>Сертифицировано Академией Гиков</div>
   </footer>
-
-  <!-- Firebase SDK (CDN) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script>
@@ -171,11 +109,9 @@
       appId: "1:228441816584:web:faa5e64ed48dc1a5f2dbbd",
       measurementId: "G-N6W4JD0G3Y"
     };
-
     firebase.initializeApp(firebaseConfig);
     window.firebaseAuth = firebase.auth();
   </script>
-
   <script src="script.js"></script>
 </body>
 </html>
