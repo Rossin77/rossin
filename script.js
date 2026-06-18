@@ -24,108 +24,80 @@
   const navDots = $$('.nav-dot');
   const switchToRegister = $('#switchToRegister');
   const switchToLogin = $('#switchToLogin');
+  const socialDropdown = $('#socialDropdown');
+  const socialTrigger = $('#socialTrigger');
 
   let currentUser = null;
   let currentLang = 'ru';
   let isDragging = false;
   let currentSection = 'hero';
+  let isSocialOpen = false;
+  let closeSocialTimeout;
 
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 
-  // ==================== СОЦ‑КНОПКИ (БЫСТРОЕ ОТКРЫТИЕ, ПЛАВНОЕ ЗАКРЫТИЕ) ====================
-  const socialBtns = $$('.social-btn');
-  socialBtns.forEach(btn => {
-    let closeTimeout;
-    const label = btn.querySelector('.social-label');
+  function updateSocialPosition() {
+    const header = $('header');
+    const headerHeight = header ? header.offsetHeight : 60;
+    const dropdownHeight = socialDropdown.scrollHeight || 56;
+    const visiblePeek = 20;
+    socialDropdown.style.top = headerHeight + 'px';
+    if (!isSocialOpen) {
+      socialDropdown.style.transform = `translateY(-${dropdownHeight - visiblePeek}px)`;
+    } else {
+      socialDropdown.style.transform = 'translateY(0)';
+    }
+    socialTrigger.style.top = (headerHeight + visiblePeek) + 'px';
+    socialTrigger.style.height = '0px';
+    socialTrigger.style.pointerEvents = 'none';
+  }
 
-    btn.addEventListener('mouseenter', () => {
-      clearTimeout(closeTimeout);
-      // Быстрое раскрытие
-      btn.style.transitionDuration = '0.15s';
-      if (label) label.style.transitionDuration = '0.15s';
+  setTimeout(updateSocialPosition, 200);
+  window.addEventListener('resize', updateSocialPosition);
 
-      btn.style.maxWidth = '160px';
-      btn.style.width = 'auto';
-      btn.style.paddingRight = '16px';
-      if (label) {
-        label.style.opacity = '0.9';
-        label.style.width = 'auto';
-        label.style.marginLeft = '8px';
-      }
-    });
+  const observer = new MutationObserver(() => { updateSocialPosition(); updateIndicatorPosition(); });
+  const headerInner = $('.header-inner');
+  if (headerInner) observer.observe(headerInner, { childList: true, subtree: true, characterData: true });
 
-    btn.addEventListener('mouseleave', () => {
-      // Запускаем закрытие через 400 мс
-      closeTimeout = setTimeout(() => {
-        // Плавное закрытие
-        btn.style.transitionDuration = '0.4s';
-        if (label) label.style.transitionDuration = '0.3s';
+  function openSocial() { clearTimeout(closeSocialTimeout); socialDropdown.classList.add('open'); isSocialOpen = true; updateSocialPosition(); }
+  function closeSocial() { closeSocialTimeout = setTimeout(() => { socialDropdown.classList.remove('open'); isSocialOpen = false; updateSocialPosition(); }, 300); }
+  socialDropdown.addEventListener('mouseenter', openSocial);
+  socialDropdown.addEventListener('mouseleave', closeSocial);
 
-        btn.style.maxWidth = '36px';
-        btn.style.width = '36px';
-        btn.style.paddingRight = '10px';
-        if (label) {
-          label.style.opacity = '0';
-          label.style.width = '0';
-          label.style.marginLeft = '0';
-        }
-      }, 400);
-    });
-  });
-
-  // ==================== ИНДИКАТОР ====================
   const header = $('header');
-  const allBtns = header ? header.querySelectorAll('.glass-btn') : [];
-
+  let allBtns = header ? header.querySelectorAll('.glass-btn') : [];
   const ind = document.createElement('div');
   ind.style.cssText = 'position:fixed;z-index:101;pointer-events:none;border-radius:24px;opacity:0;background:linear-gradient(135deg,rgba(180,170,210,0.4) 0%,rgba(200,190,230,0.3) 20%,rgba(170,200,220,0.35) 40%,rgba(190,180,220,0.3) 60%,rgba(200,190,210,0.35) 80%,rgba(180,170,210,0.4) 100%);background-size:400% 400%;animation:flowGradient 6s ease infinite,flowDirection 8s ease infinite;box-shadow:0 0 25px rgba(180,170,210,0.25),0 0 50px rgba(180,170,210,0.1),inset 0 1px 0 rgba(255,255,255,0.3),inset 0 -1px 0 rgba(0,0,0,0.05);transition:left .5s cubic-bezier(.25,.8,.25,1.2),width .5s cubic-bezier(.25,.8,.25,1.2),opacity .3s ease';
   document.body.appendChild(ind);
 
-  let lastBtn = allBtns[0] || null;
+  let lastBtn = null;
   let isHovering = false;
   let indicatorReady = false;
 
-  function updateVertical() {
-    if (!allBtns.length) return;
-    let minTop = Infinity, maxBottom = 0;
-    allBtns.forEach(btn => {
-      const r = btn.getBoundingClientRect();
-      if (!r.width) return;
-      minTop = Math.min(minTop, r.top);
-      maxBottom = Math.max(maxBottom, r.bottom);
-    });
-    if (minTop === Infinity) return;
-    ind.style.top = minTop + 'px';
-    ind.style.height = (maxBottom - minTop) + 'px';
-  }
+  function refreshAllBtns() { const h = $('header'); allBtns = h ? h.querySelectorAll('.glass-btn') : []; if (allBtns.length > 0 && !lastBtn) lastBtn = allBtns[0]; }
+  function updateVertical() { refreshAllBtns(); if (!allBtns.length) return; let minTop = Infinity, maxBottom = 0; allBtns.forEach(btn => { const r = btn.getBoundingClientRect(); if (!r.width) return; minTop = Math.min(minTop, r.top); maxBottom = Math.max(maxBottom, r.bottom); }); if (minTop === Infinity) return; ind.style.top = minTop + 'px'; ind.style.height = (maxBottom - minTop) + 'px'; }
+  function applyHorizontal(btn) { if (!btn) return; const r = btn.getBoundingClientRect(); ind.style.left = r.left + 'px'; ind.style.width = r.width + 'px'; }
+  function showIndicator() { refreshAllBtns(); if (!lastBtn && allBtns.length > 0) lastBtn = allBtns[0]; updateVertical(); applyHorizontal(lastBtn); ind.style.opacity = '0.35'; indicatorReady = true; }
+  function updateIndicatorPosition() { if (!indicatorReady || !lastBtn) return; updateVertical(); applyHorizontal(lastBtn); ind.style.opacity = isHovering ? '1' : '0.35'; }
 
-  function applyHorizontal(btn) {
-    if (!btn) return;
-    const r = btn.getBoundingClientRect();
-    ind.style.left = r.left + 'px';
-    ind.style.width = r.width + 'px';
-  }
-
-  function showIndicator() { updateVertical(); applyHorizontal(lastBtn); ind.style.opacity = '0.35'; indicatorReady = true; }
-
-  function waitForHeaderAnimation() {
-    if (!header) { setTimeout(showIndicator, 100); return; }
-    const ha = header.getAnimations ? header.getAnimations().find(a => a.animationName === 'headerSlideDown') : null;
-    if (!ha || ha.playState === 'finished') { setTimeout(showIndicator, 50); return; }
-    header.addEventListener('animationend', function h() { header.removeEventListener('animationend', h); setTimeout(showIndicator, 50); }, { once: true });
-  }
-
+  function waitForHeaderAnimation() { if (!header) { setTimeout(showIndicator, 100); return; } const ha = header.getAnimations ? header.getAnimations().find(a => a.animationName === 'headerSlideDown') : null; if (!ha || ha.playState === 'finished') { setTimeout(showIndicator, 50); return; } header.addEventListener('animationend', function h() { header.removeEventListener('animationend', h); setTimeout(showIndicator, 50); }, { once: true }); }
   if (document.readyState === 'complete') waitForHeaderAnimation();
   else window.addEventListener('load', waitForHeaderAnimation);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(waitForHeaderAnimation);
 
-  allBtns.forEach(btn => {
-    btn.addEventListener('mouseenter', () => { if (!indicatorReady) return; isHovering = true; lastBtn = btn; applyHorizontal(btn); ind.style.opacity = '1'; });
-    btn.addEventListener('mouseleave', () => { if (!indicatorReady) return; isHovering = false; ind.style.opacity = '0.35'; });
-  });
+  function bindGlassBtns() { refreshAllBtns(); allBtns.forEach(btn => { btn.removeEventListener('mouseenter', handleGlassEnter); btn.removeEventListener('mouseleave', handleGlassLeave); btn.addEventListener('mouseenter', handleGlassEnter); btn.addEventListener('mouseleave', handleGlassLeave); }); }
+  function handleGlassEnter() { if (!indicatorReady) return; isHovering = true; lastBtn = this; applyHorizontal(this); ind.style.opacity = '1'; }
+  function handleGlassLeave() { if (!indicatorReady) return; isHovering = false; ind.style.opacity = '0.35'; }
 
-  window.addEventListener('resize', () => { if (!indicatorReady || !lastBtn) return; updateVertical(); applyHorizontal(lastBtn); ind.style.opacity = isHovering ? '1' : '0.35'; });
+  setTimeout(bindGlassBtns, 500);
+  window.addEventListener('resize', () => { updateIndicatorPosition(); setTimeout(bindGlassBtns, 100); });
+
+  const langObserver = new MutationObserver(() => { setTimeout(() => { updateIndicatorPosition(); bindGlassBtns(); updateSocialPosition(); }, 100); });
+  const headerActions = $('.header-actions');
+  const navLinksContainer = $('.nav-links');
+  if (headerActions) langObserver.observe(headerActions, { childList: true, subtree: true, characterData: true });
+  if (navLinksContainer) langObserver.observe(navLinksContainer, { childList: true, subtree: true, characterData: true });
 
   function setTheme(dark) { body.classList.toggle('dark-theme', dark); localStorage.setItem('rossinTheme', dark ? 'dark' : 'light'); }
   const st = localStorage.getItem('rossinTheme');
@@ -151,15 +123,13 @@
     const lb = $('#logoutAction');
     if (lb) lb.textContent = lang === 'ru' ? 'Выйти из аккаунта' : 'Log out';
     updateUI();
+    setTimeout(() => { updateIndicatorPosition(); bindGlassBtns(); updateSocialPosition(); }, 200);
   }
   setLanguage(localStorage.getItem('rossinLang') === 'en' ? 'en' : 'ru');
   langBtn.addEventListener('click', () => setLanguage(currentLang === 'ru' ? 'en' : 'ru'));
 
   let passwordVisible = false;
-  function updatePasswordToggles() {
-    [loginPassword, registerPassword].forEach(inp => { if (inp) inp.type = passwordVisible ? 'text' : 'password'; });
-    document.querySelectorAll('.password-toggle').forEach(t => t.textContent = passwordVisible ? '🙈' : '👁️');
-  }
+  function updatePasswordToggles() { [loginPassword, registerPassword].forEach(inp => { if (inp) inp.type = passwordVisible ? 'text' : 'password'; }); document.querySelectorAll('.password-toggle').forEach(t => t.textContent = passwordVisible ? '🙈' : '👁️'); }
   function setupPasswordToggles() {
     ['loginPassword', 'registerPassword'].forEach(id => {
       const w = $(`#${id}`).parentElement;
@@ -195,23 +165,11 @@
     setTimeout(() => { const top = t.getBoundingClientRect().top; if (top < 80) window.scrollBy({ top: top - 80, behavior: 'smooth' }); }, 50);
   }
 
-  navDots.forEach(dot => {
-    dot.addEventListener('click', e => { e.preventDefault(); scrollToTarget(dot); });
-    dot.addEventListener('mousedown', e => { e.preventDefault(); isDragging = true; scrollToTarget(dot); });
-  });
-  document.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return e.clientX >= r.left-10 && e.clientX <= r.right+10 && e.clientY >= r.top-10 && e.clientY <= r.bottom+10; });
-    if (dot) scrollToTarget(dot);
-  });
+  navDots.forEach(dot => { dot.addEventListener('click', e => { e.preventDefault(); scrollToTarget(dot); }); dot.addEventListener('mousedown', e => { e.preventDefault(); isDragging = true; scrollToTarget(dot); }); });
+  document.addEventListener('mousemove', e => { if (!isDragging) return; const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return e.clientX >= r.left-10 && e.clientX <= r.right+10 && e.clientY >= r.top-10 && e.clientY <= r.bottom+10; }); if (dot) scrollToTarget(dot); });
   document.addEventListener('mouseup', () => isDragging = false);
   navDots.forEach(d => d.addEventListener('touchstart', e => { e.preventDefault(); isDragging = true; scrollToTarget(d); }));
-  document.addEventListener('touchmove', e => {
-    if (!isDragging) return;
-    const t = e.touches[0];
-    const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return t.clientX >= r.left-10 && t.clientX <= r.right+10 && t.clientY >= r.top-10 && t.clientY <= r.bottom+10; });
-    if (dot) scrollToTarget(dot);
-  });
+  document.addEventListener('touchmove', e => { if (!isDragging) return; const t = e.touches[0]; const dot = [...navDots].find(d => { const r = d.getBoundingClientRect(); return t.clientX >= r.left-10 && t.clientX <= r.right+10 && t.clientY >= r.top-10 && t.clientY <= r.bottom+10; }); if (dot) scrollToTarget(dot); });
   document.addEventListener('touchend', () => isDragging = false);
 
   window.addEventListener('scroll', () => {
@@ -231,12 +189,10 @@
     loginAction.style.display = ''; loginEmail.style.display = ''; loginPassword.style.display = '';
     document.querySelectorAll('#loginModal .modal-input-wrapper').forEach(w => w.style.display = '');
     document.querySelectorAll('#loginModal .modal-switch').forEach(s => s.style.display = '');
-
     if (currentUser) {
       loginAction.style.display = 'none'; loginEmail.style.display = 'none'; loginPassword.style.display = 'none';
       document.querySelectorAll('#loginModal .modal-input-wrapper').forEach(w => w.style.display = 'none');
       document.querySelectorAll('#loginModal .modal-switch').forEach(s => s.style.display = 'none');
-
       const btn = document.createElement('button');
       btn.id = 'logoutAction'; btn.className = 'btn btn-accent';
       btn.style.cssText = 'width:100%;background:linear-gradient(135deg,rgba(198,40,40,0.8),rgba(255,82,82,0.6));color:#fff;border:0.5px solid rgba(255,255,255,0.3);padding:12px 28px;border-radius:28px;font-weight:700;font-size:.85rem;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;position:relative;overflow:hidden;';
@@ -249,76 +205,26 @@
       btn.addEventListener('click', () => { window.firebaseAuth.signOut(); closeAllModals(); });
       loginModal.querySelector('.modal-buttons').appendChild(btn);
     }
-
     loginModal.classList.add('active'); registerModal.classList.remove('active');
     setupPasswordToggles(); setLanguage(currentLang);
   }
 
   function closeAllModals() { loginModal.classList.remove('active'); registerModal.classList.remove('active'); }
-
-  function updateUI() {
-    const bt = userMenuBtn.querySelector('.btn-text');
-    if (bt) bt.textContent = currentUser ? currentUser.name : (currentLang === 'ru' ? 'Профиль' : 'Profile');
-  }
+  function updateUI() { const bt = userMenuBtn.querySelector('.btn-text'); if (bt) bt.textContent = currentUser ? currentUser.name : (currentLang === 'ru' ? 'Профиль' : 'Profile'); }
 
   userMenuBtn.addEventListener('click', openLoginModal);
   closeLoginModal.addEventListener('click', closeAllModals);
   closeRegisterModal.addEventListener('click', closeAllModals);
   window.addEventListener('click', e => { if (e.target === loginModal || e.target === registerModal) closeAllModals(); });
-  switchToRegister.addEventListener('click', () => {
-    loginModal.classList.remove('active'); registerModal.classList.add('active');
-    registerEmail.value = ''; registerPassword.value = ''; registerMessage.textContent = '';
-    setupPasswordToggles(); setLanguage(currentLang);
-  });
-  switchToLogin.addEventListener('click', () => {
-    registerModal.classList.remove('active'); loginModal.classList.add('active');
-    loginEmail.value = ''; loginPassword.value = ''; loginMessage.textContent = '';
-    setupPasswordToggles(); setLanguage(currentLang);
-  });
+  switchToRegister.addEventListener('click', () => { loginModal.classList.remove('active'); registerModal.classList.add('active'); registerEmail.value = ''; registerPassword.value = ''; registerMessage.textContent = ''; setupPasswordToggles(); setLanguage(currentLang); });
+  switchToLogin.addEventListener('click', () => { registerModal.classList.remove('active'); loginModal.classList.add('active'); loginEmail.value = ''; loginPassword.value = ''; loginMessage.textContent = ''; setupPasswordToggles(); setLanguage(currentLang); });
 
-  window.firebaseAuth.onAuthStateChanged(user => {
-    currentUser = user ? { name: user.displayName || user.email.split('@')[0], email: user.email } : null;
-    updateUI();
-  });
+  window.firebaseAuth.onAuthStateChanged(user => { currentUser = user ? { name: user.displayName || user.email.split('@')[0], email: user.email } : null; updateUI(); });
 
-  const authMessages = {
-    'auth/invalid-credential': ['Неверный email или пароль', 'Wrong email or password'],
-    'auth/user-not-found': ['Пользователь не найден', 'User not found'],
-    'auth/wrong-password': ['Неверный пароль', 'Wrong password'],
-    'auth/invalid-email': ['Неверный email', 'Invalid email'],
-    'auth/too-many-requests': ['Слишком много попыток. Подождите', 'Too many attempts. Wait'],
-    'auth/email-already-in-use': ['Email уже используется', 'Email already in use'],
-    'auth/weak-password': ['Пароль слишком простой', 'Password too weak']
-  };
+  const authMessages = { 'auth/invalid-credential': ['Неверный email или пароль', 'Wrong email or password'], 'auth/user-not-found': ['Пользователь не найден', 'User not found'], 'auth/wrong-password': ['Неверный пароль', 'Wrong password'], 'auth/invalid-email': ['Неверный email', 'Invalid email'], 'auth/too-many-requests': ['Слишком много попыток. Подождите', 'Too many attempts. Wait'], 'auth/email-already-in-use': ['Email уже используется', 'Email already in use'], 'auth/weak-password': ['Пароль слишком простой', 'Password too weak'] };
 
-  loginAction.addEventListener('click', async () => {
-    const email = loginEmail.value.trim(), password = loginPassword.value.trim();
-    if (!email || !password) { loginMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; }
-    loginAction.disabled = true; loginAction.textContent = '...';
-    try {
-      await window.firebaseAuth.signInWithEmailAndPassword(email, password);
-      loginMessage.textContent = currentLang === 'ru' ? 'Добро пожаловать!' : 'Welcome!';
-      setTimeout(closeAllModals, 800);
-    } catch (error) {
-      const msg = authMessages[error.code];
-      loginMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message;
-    } finally { loginAction.disabled = false; setLanguage(currentLang); }
-  });
-
-  registerAction.addEventListener('click', async () => {
-    const email = registerEmail.value.trim(), password = registerPassword.value.trim();
-    if (!email || !password) { registerMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; }
-    if (password.length < 6) { registerMessage.textContent = currentLang === 'ru' ? 'Минимум 6 символов' : 'Minimum 6 characters'; return; }
-    registerAction.disabled = true; registerAction.textContent = '...';
-    try {
-      await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
-      registerMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!';
-      setTimeout(closeAllModals, 800);
-    } catch (error) {
-      const msg = authMessages[error.code];
-      registerMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message;
-    } finally { registerAction.disabled = false; setLanguage(currentLang); }
-  });
+  loginAction.addEventListener('click', async () => { const email = loginEmail.value.trim(), password = loginPassword.value.trim(); if (!email || !password) { loginMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; } loginAction.disabled = true; loginAction.textContent = '...'; try { await window.firebaseAuth.signInWithEmailAndPassword(email, password); loginMessage.textContent = currentLang === 'ru' ? 'Добро пожаловать!' : 'Welcome!'; setTimeout(closeAllModals, 800); } catch (error) { const msg = authMessages[error.code]; loginMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message; } finally { loginAction.disabled = false; setLanguage(currentLang); } });
+  registerAction.addEventListener('click', async () => { const email = registerEmail.value.trim(), password = registerPassword.value.trim(); if (!email || !password) { registerMessage.textContent = currentLang === 'ru' ? 'Заполните все поля' : 'Fill in all fields'; return; } if (password.length < 6) { registerMessage.textContent = currentLang === 'ru' ? 'Минимум 6 символов' : 'Minimum 6 characters'; return; } registerAction.disabled = true; registerAction.textContent = '...'; try { await window.firebaseAuth.createUserWithEmailAndPassword(email, password); registerMessage.textContent = currentLang === 'ru' ? 'Регистрация успешна!' : 'Registration successful!'; setTimeout(closeAllModals, 800); } catch (error) { const msg = authMessages[error.code]; registerMessage.textContent = msg ? msg[currentLang === 'ru' ? 0 : 1] : error.message; } finally { registerAction.disabled = false; setLanguage(currentLang); } });
 
   updateUI();
 })();

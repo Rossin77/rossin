@@ -49,15 +49,27 @@
       <div class="modal-switch"><span data-ru="Уже есть аккаунт?" data-en="Already have an account?">Уже есть аккаунт?</span><button class="btn-switch" id="switchToLogin" data-ru="Войти" data-en="Login">Войти</button></div>
     </div>
   </div>
+  <div class="social-dropdown" id="socialDropdown">
+    <div class="social-dropdown-inner">
+      <a href="https://vk.com/flexinforces" target="_blank" class="social-dropdown-item vk">
+        <span class="social-dropdown-icon"><img src="img/VK.png" width="24" height="24" alt="VK"></span>
+        <span class="social-dropdown-label">VK</span>
+      </a>
+      <a href="https://www.instagram.com/rossinsinss?igsh=cjJwMWJlZWRwc3ht" target="_blank" class="social-dropdown-item instagram">
+        <span class="social-dropdown-icon"><img src="img/Instagram.png" width="24" height="24" alt="Instagram"></span>
+        <span class="social-dropdown-label">Instagram</span>
+      </a>
+      <a href="https://soundcloud.com/rossin-824192136" target="_blank" class="social-dropdown-item soundcloud">
+        <span class="social-dropdown-icon"><img src="img/SoundCloud.png" width="24" height="24" alt="SoundCloud"></span>
+        <span class="social-dropdown-label">SoundCloud</span>
+      </a>
+    </div>
+  </div>
+  <div class="social-dropdown-trigger" id="socialTrigger"></div>
   <header>
     <div class="header-inner">
       <div class="header-left">
         <div class="logo" id="logoBtn">ROSSIN</div>
-        <div class="social-btns">
-          <a href="https://vk.com/flexinforces" target="_blank" class="social-btn vk" title="VK"><span class="social-icon"><img src="img/VK.png" width="20" height="20" alt="VK"></span><span class="social-label">VK</span></a>
-          <a href="https://www.instagram.com/rossinsinss?igsh=cjJwMWJlZWRwc3ht" target="_blank" class="social-btn instagram" title="Instagram"><span class="social-icon"><img src="img/Instagram.png" width="20" height="20" alt="Instagram"></span><span class="social-label">Instagram</span></a>
-          <a href="https://soundcloud.com/rossin-824192136" target="_blank" class="social-btn soundcloud" title="SoundCloud"><span class="social-icon"><img src="img/SoundCloud.png" width="20" height="20" alt="SoundCloud"></span><span class="social-label">SoundCloud</span></a>
-        </div>
       </div>
       <div class="nav-links glass-container">
         <a class="glass-btn active-link active" data-nav="main" data-ru="Главная" data-en="Home">Главная</a>
@@ -65,8 +77,12 @@
       </div>
       <div class="header-actions glass-container">
         <button class="glass-btn" id="userMenuBtn"><span class="btn-text" data-ru="Профиль" data-en="Profile">Профиль</span></button>
-        <button class="glass-btn" id="themeToggle"><span class="btn-text">◐</span></button>
         <button class="glass-btn" id="langBtn"><span class="btn-text">RU</span></button>
+      </div>
+      <div class="theme-toggle-wrap">
+        <button id="themeToggle">
+          <span class="theme-toggle-knob"></span>
+        </button>
       </div>
     </div>
   </header>
